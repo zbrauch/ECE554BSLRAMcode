@@ -1,6 +1,5 @@
-Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr_ex.o: \
- C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c \
- ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
+Example/User/stm32f4xx_hal_msp.o: ../Example/User/stm32f4xx_hal_msp.c \
+ ../../Inc/main.h ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  ../../Inc/stm32f4xx_hal_conf.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h \
@@ -32,7 +31,9 @@ Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr_ex.o: \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dsi.h
+ ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dsi.h \
+ ../../Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.h
+../../Inc/main.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../../Inc/stm32f4xx_hal_conf.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h:
@@ -66,3 +67,4 @@ Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr_ex.o: \
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dsi.h:
+../../Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.h:

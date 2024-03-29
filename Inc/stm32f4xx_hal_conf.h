@@ -39,22 +39,22 @@
 /* #define HAL_CEC_MODULE_ENABLED */
 /* #define HAL_CRYP_MODULE_ENABLED   */
 /* #define HAL_DAC_MODULE_ENABLED   */
-/* #define HAL_DCMI_MODULE_ENABLED  */
-/* #define HAL_DMA_MODULE_ENABLED */
-/* #define HAL_DMA2D_MODULE_ENABLED  */
+#define HAL_DCMI_MODULE_ENABLED
+#define HAL_DMA_MODULE_ENABLED
+#define HAL_DMA2D_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED 
 /* #define HAL_NAND_MODULE_ENABLED */
 /* #define HAL_NOR_MODULE_ENABLED */
 /* #define HAL_PCCARD_MODULE_ENABLED */
 /* #define HAL_SRAM_MODULE_ENABLED */
-/* #define HAL_SDRAM_MODULE_ENABLED */
+#define HAL_SDRAM_MODULE_ENABLED
 /* #define HAL_HASH_MODULE_ENABLED   */
 #define HAL_GPIO_MODULE_ENABLED
-/* #define HAL_I2C_MODULE_ENABLED */
+#define HAL_I2C_MODULE_ENABLED
 /* #define HAL_I2S_MODULE_ENABLED    */
 /* #define HAL_IWDG_MODULE_ENABLED  */
 /* #define HAL_LTDC_MODULE_ENABLED  */
-/* #define HAL_DSI_MODULE_ENABLED */
+#define HAL_DSI_MODULE_ENABLED
 #define HAL_PWR_MODULE_ENABLED
 /* #define HAL_QSPI_MODULE_ENABLED    */
 #define HAL_RCC_MODULE_ENABLED 
@@ -64,7 +64,7 @@
 /* #define HAL_SD_MODULE_ENABLED   */
 /* #define HAL_SPI_MODULE_ENABLED    */
 /* #define HAL_TIM_MODULE_ENABLED    */
-/* #define HAL_UART_MODULE_ENABLED  */
+#define HAL_UART_MODULE_ENABLED
 /* #define HAL_USART_MODULE_ENABLED  */
 /* #define HAL_IRDA_MODULE_ENABLED  */
 /* #define HAL_SMARTCARD_MODULE_ENABLED  */
@@ -139,7 +139,7 @@
 #define  USE_RTOS                     0U
 #define  PREFETCH_ENABLE              1U
 #define  INSTRUCTION_CACHE_ENABLE     1U
-#define  DATA_CACHE_ENABLE            1U
+#define  DATA_CACHE_ENABLE            0U
 
 #define  USE_HAL_ADC_REGISTER_CALLBACKS         0U /* ADC register callback disabled       */
 #define  USE_HAL_CAN_REGISTER_CALLBACKS         0U /* CAN register callback disabled       */
