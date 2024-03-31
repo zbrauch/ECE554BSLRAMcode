@@ -127,10 +127,10 @@ int main(void)
 
 
 	uint8_t printout[50] = "Hello from RAM!\r\n";
-	for(uint8_t i = 0; i < 10; i++) {
+	for(uint8_t i = 0; i < 20; i++) {
 		//UART_
 		HAL_UART_Transmit(&UartHandle, printout, 18, HAL_MAX_DELAY);
-		HAL_Delay(200);
+		HAL_Delay(500);
 	}
 
 	/* Infinite loop */

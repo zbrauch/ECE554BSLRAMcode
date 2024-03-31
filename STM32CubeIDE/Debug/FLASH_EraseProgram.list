@@ -4698,10 +4698,10 @@ int main(void)
 20002fde:	2100      	movs	r1, #0
 20002fe0:	4618      	mov	r0, r3
 20002fe2:	f000 f9d9 	bl	20003398 <memset>
-	for(uint8_t i = 0; i < 10; i++) {
+	for(uint8_t i = 0; i < 20; i++) {
 20002fe6:	2300      	movs	r3, #0
 20002fe8:	f887 3037 	strb.w	r3, [r7, #55]	; 0x37
-20002fec:	e00e      	b.n	2000300c <main+0xf0>
+20002fec:	e00f      	b.n	2000300e <main+0xf2>
 		//UART_
 		HAL_UART_Transmit(&UartHandle, printout, 18, HAL_MAX_DELAY);
 20002fee:	4639      	mov	r1, r7
@@ -4709,72 +4709,71 @@ int main(void)
 20002ff4:	2212      	movs	r2, #18
 20002ff6:	481e      	ldr	r0, [pc, #120]	; (20003070 <main+0x154>)
 20002ff8:	f7ff fbaa 	bl	20002750 <HAL_UART_Transmit>
-		HAL_Delay(200);
-20002ffc:	20c8      	movs	r0, #200	; 0xc8
-20002ffe:	f7fe fbaf 	bl	20001760 <HAL_Delay>
-	for(uint8_t i = 0; i < 10; i++) {
-20003002:	f897 3037 	ldrb.w	r3, [r7, #55]	; 0x37
-20003006:	3301      	adds	r3, #1
-20003008:	f887 3037 	strb.w	r3, [r7, #55]	; 0x37
-2000300c:	f897 3037 	ldrb.w	r3, [r7, #55]	; 0x37
-20003010:	2b09      	cmp	r3, #9
-20003012:	d9ec      	bls.n	20002fee <main+0xd2>
+		HAL_Delay(500);
+20002ffc:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+20003000:	f7fe fbae 	bl	20001760 <HAL_Delay>
+	for(uint8_t i = 0; i < 20; i++) {
+20003004:	f897 3037 	ldrb.w	r3, [r7, #55]	; 0x37
+20003008:	3301      	adds	r3, #1
+2000300a:	f887 3037 	strb.w	r3, [r7, #55]	; 0x37
+2000300e:	f897 3037 	ldrb.w	r3, [r7, #55]	; 0x37
+20003012:	2b13      	cmp	r3, #19
+20003014:	d9eb      	bls.n	20002fee <main+0xd2>
 	}
 
 	/* Infinite loop */
 	while (1)
 	{
 		HAL_Delay(500);
-20003014:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
-20003018:	f7fe fba2 	bl	20001760 <HAL_Delay>
+20003016:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+2000301a:	f7fe fba1 	bl	20001760 <HAL_Delay>
 		BSP_LED_On(LED1);
-2000301c:	2000      	movs	r0, #0
-2000301e:	f7fe fabf 	bl	200015a0 <BSP_LED_On>
+2000301e:	2000      	movs	r0, #0
+20003020:	f7fe fabe 	bl	200015a0 <BSP_LED_On>
 		//BSP_LED_On(LED2);
 		BSP_LED_On(LED3);
-20003022:	2002      	movs	r0, #2
-20003024:	f7fe fabc 	bl	200015a0 <BSP_LED_On>
+20003024:	2002      	movs	r0, #2
+20003026:	f7fe fabb 	bl	200015a0 <BSP_LED_On>
 		HAL_Delay(500);
-20003028:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
-2000302c:	f7fe fb98 	bl	20001760 <HAL_Delay>
+2000302a:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+2000302e:	f7fe fb97 	bl	20001760 <HAL_Delay>
 		for(uint16_t i = 0; i < 0xFFFF; i++)
-20003030:	2300      	movs	r3, #0
-20003032:	86bb      	strh	r3, [r7, #52]	; 0x34
-20003034:	e003      	b.n	2000303e <main+0x122>
+20003032:	2300      	movs	r3, #0
+20003034:	86bb      	strh	r3, [r7, #52]	; 0x34
+20003036:	e003      	b.n	20003040 <main+0x124>
 			asm("nop");
-20003036:	bf00      	nop
+20003038:	bf00      	nop
 		for(uint16_t i = 0; i < 0xFFFF; i++)
-20003038:	8ebb      	ldrh	r3, [r7, #52]	; 0x34
-2000303a:	3301      	adds	r3, #1
-2000303c:	86bb      	strh	r3, [r7, #52]	; 0x34
-2000303e:	8ebb      	ldrh	r3, [r7, #52]	; 0x34
-20003040:	f64f 72ff 	movw	r2, #65535	; 0xffff
-20003044:	4293      	cmp	r3, r2
-20003046:	d1f6      	bne.n	20003036 <main+0x11a>
+2000303a:	8ebb      	ldrh	r3, [r7, #52]	; 0x34
+2000303c:	3301      	adds	r3, #1
+2000303e:	86bb      	strh	r3, [r7, #52]	; 0x34
+20003040:	8ebb      	ldrh	r3, [r7, #52]	; 0x34
+20003042:	f64f 72ff 	movw	r2, #65535	; 0xffff
+20003046:	4293      	cmp	r3, r2
+20003048:	d1f6      	bne.n	20003038 <main+0x11c>
 		BSP_LED_Off(LED1);
-20003048:	2000      	movs	r0, #0
-2000304a:	f7fe fac3 	bl	200015d4 <BSP_LED_Off>
+2000304a:	2000      	movs	r0, #0
+2000304c:	f7fe fac2 	bl	200015d4 <BSP_LED_Off>
 		//BSP_LED_Off(LED2);
 		BSP_LED_Off(LED3);
-2000304e:	2002      	movs	r0, #2
-20003050:	f7fe fac0 	bl	200015d4 <BSP_LED_Off>
+20003050:	2002      	movs	r0, #2
+20003052:	f7fe fabf 	bl	200015d4 <BSP_LED_Off>
 		for(uint16_t i = 0; i < 0xFFFF; i++)
-20003054:	2300      	movs	r3, #0
-20003056:	867b      	strh	r3, [r7, #50]	; 0x32
-20003058:	e003      	b.n	20003062 <main+0x146>
+20003056:	2300      	movs	r3, #0
+20003058:	867b      	strh	r3, [r7, #50]	; 0x32
+2000305a:	e003      	b.n	20003064 <main+0x148>
 			asm("nop");
-2000305a:	bf00      	nop
+2000305c:	bf00      	nop
 		for(uint16_t i = 0; i < 0xFFFF; i++)
-2000305c:	8e7b      	ldrh	r3, [r7, #50]	; 0x32
-2000305e:	3301      	adds	r3, #1
-20003060:	867b      	strh	r3, [r7, #50]	; 0x32
-20003062:	8e7b      	ldrh	r3, [r7, #50]	; 0x32
-20003064:	f64f 72ff 	movw	r2, #65535	; 0xffff
-20003068:	4293      	cmp	r3, r2
-2000306a:	d1f6      	bne.n	2000305a <main+0x13e>
+2000305e:	8e7b      	ldrh	r3, [r7, #50]	; 0x32
+20003060:	3301      	adds	r3, #1
+20003062:	867b      	strh	r3, [r7, #50]	; 0x32
+20003064:	8e7b      	ldrh	r3, [r7, #50]	; 0x32
+20003066:	f64f 72ff 	movw	r2, #65535	; 0xffff
+2000306a:	4293      	cmp	r3, r2
+2000306c:	d1f6      	bne.n	2000305c <main+0x140>
 		HAL_Delay(500);
-2000306c:	e7d2      	b.n	20003014 <main+0xf8>
-2000306e:	bf00      	nop
+2000306e:	e7d2      	b.n	20003016 <main+0xfa>
 20003070:	200034ac 	.word	0x200034ac
 20003074:	40004800 	.word	0x40004800
 20003078:	08008000 	.word	0x08008000
