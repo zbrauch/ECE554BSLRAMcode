@@ -95,7 +95,7 @@ int main(void)
 
 	//UART init
 	UartHandle.Instance        = USARTx;
-	UartHandle.Init.BaudRate   = 115200;
+	UartHandle.Init.BaudRate   = 57600;
 	UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
 	UartHandle.Init.StopBits   = UART_STOPBITS_1;
 	UartHandle.Init.Parity     = UART_PARITY_NONE;
@@ -130,6 +130,7 @@ int main(void)
 	for(uint8_t i = 0; i < 10; i++) {
 		//UART_
 		HAL_UART_Transmit(&UartHandle, printout, 18, HAL_MAX_DELAY);
+		HAL_Delay(200);
 	}
 
 	/* Infinite loop */
