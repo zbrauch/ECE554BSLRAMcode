@@ -42,10 +42,7 @@ void HEXQueueAddArray(HEXQueue *q, uint8_t *inbuf, uint8_t len) {
 }
 
 uint8_t HEXQueueGetIdx(HEXQueue *q, uint8_t idx) {
-	uint8_t retIdx = idx + q->start;
-	while(retIdx > HEX_QUEUE_LEN)
-		retIdx -= HEX_QUEUE_LEN;
-
+	uint8_t retIdx = (idx + q->start) % HEX_QUEUE_LEN;
 	return q->buf[retIdx];
 }
 
@@ -60,7 +57,7 @@ uint8_t HEXQueueExtractHex(HEXQueue *q, uint8_t *outBuf) {
 			if((q->len - i) >= 5 + dataLen) { //if hex fully received
 				//check checksum
 				uint8_t checksum = 0;
-				for(uint8_t j = 1; i < dataLen + 5; i++) {
+				for(uint8_t j = 1; j < dataLen + 5; j++) {
 					checksum += HEXQueueGetIdx(q, i+j);
 				}
 				checksum = (~checksum)+1; //2's compliment

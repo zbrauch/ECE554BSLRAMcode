@@ -158,6 +158,86 @@ void TinyBLInit(void) {
 
 }
 
+uint32_t erasedSectors[8];
+uint8_t erasedSectorsLen = 0;
+//erase sector if not already erased
+void FlashEraseSectorIfNeeded(uint32_t addr) {
+	//get current flash sector
+	uint32_t sector = GetSector(addr);
+	for(uint8_t i = 0; i < erasedSectorsLen; i++) {
+		if(sector == erasedSectors[i])
+			return;
+	}
+
+	//erasing sector
+	EraseInitStruct.TypeErase     = FLASH_TYPEERASE_SECTORS;
+	EraseInitStruct.VoltageRange  = FLASH_VOLTAGE_RANGE_3;
+	EraseInitStruct.Sector        = sector;
+	EraseInitStruct.NbSectors     = 1;
+
+	if (HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError) != HAL_OK)
+	{
+
+	      //Error occurred while sector erase.
+	      //User can add here some code to deal with this error.
+	      //SECTORError will contain the faulty sector and then to know the code error on this sector,
+	      //user can call function 'HAL_FLASH_GetError()'
+		while (1) {
+			BSP_LED_On(LED3);
+		}
+	}
+	erasedSectors[erasedSectorsLen] = sector;
+	erasedSectorsLen++;
+	return;
+}
+
+
+uint8_t hexBuf[100];
+uint32_t addrOffset = 0;
+//process hex and flash
+//returns 0 if success, 1 if end of flashing, -1 if error
+uint8_t ProcessHexFlash() {
+	uint8_t dataLen = hexBuf[0];
+	uint8_t cmdType = hexBuf[3];
+	if(cmdType == 0) { //data
+		uint32_t flashAddr = addrOffset + (((uint32_t)hexBuf[1])<<8) + (uint32_t)hexBuf[2];
+		//I'm making a brave assumption here. I'm assuming a single data record won't extend between
+		//multiple sectors. Is this a safe assumption? I dunno. But it'll save more clock cycles than
+		//a half-baked solution
+		FlashEraseSectorIfNeeded(flashAddr);
+
+		for(uint8_t i = 0; i < dataLen; i++) {
+			if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, flashAddr+i, hexBuf[i+4]) != HAL_OK) {
+				// Error occurred while writing data in Flash memory.
+			    	//User can add here some code to deal with this error
+				while (1)
+				{
+					BSP_LED_On(LED3);
+				}
+			}
+
+		}
+	}
+	else if(cmdType == 1) { //EOF
+		return 1;
+	}
+	else if (cmdType == 2) { //extended segment address
+		//should not be used so don't bother
+	}
+	else if (cmdType == 3) { //start segment address
+		//we shouldn't need to care about entry address
+	}
+	else if (cmdType == 4) { //extended linear address
+		//printf("Address Command: %s\r\n", hexCmdBuf);
+		addrOffset = (((uint32_t)hexBuf[4]) << 24) + (((uint32_t)hexBuf[5]) << 16);
+	}
+	else if (cmdType == 5) { //start linear address
+		//we shouldn't need to care about entry address
+	}
+	return 0;
+}
+
+
 
 /**
  * @brief  Main program
@@ -165,7 +245,7 @@ void TinyBLInit(void) {
  * @retval None
  */
 
-
+uint32_t recMsgCount = 0;
 int main(void)
 {  
 	TinyBLInit();
@@ -207,7 +287,7 @@ int main(void)
 
 
 	/* Unlock the Flash to enable the flash control register access *************/
-	//HAL_FLASH_Unlock();
+	HAL_FLASH_Unlock();
 
 	/* Erase the user Flash area
     (area defined by FLASH_USER_START_ADDR and FLASH_USER_END_ADDR) ***********/
@@ -229,29 +309,23 @@ int main(void)
 	/* Infinite loop */
 	HEXQueue q;
 	HEXQueueInit(&q);
-	uint8_t uartInBuf[18];
-	uint8_t hexBuf[100];
-	uint32_t addrOffset = 0;
 	while(1) {
 		uint16_t count = 0;
 		//HAL_UARTEx_ReceiveToIdle(&UartHandle, uartInBuf, 17, &count, 200);
 		if((UartHandle.Instance->SR & UART_FLAG_RXNE) == UART_FLAG_RXNE) {
 			HEXQueueAdd(&q, (uint8_t)UartHandle.Instance->DR);
-			asm("nop");
-		}
-		//HAL_UART_Receive(&UartHandle, uartInBuf, 17, 0);
-		//if(HAL_UART_GetState(&UartHandle) != HAL_UART_STATE_BUSY_RX)
-			//HAL_UART_Receive_IT(&UartHandle, uartInBuf, 8);
-		//HAL_UARTEx_ReceiveToIdle_DMA(&UartHandle, uartRxItBuf, 20);
-		if(count) {
-			HEXQueueAddArray(&q, uartInBuf, count);
-
-			//Check for complete Intel hex commands
+			//asm("nop");
 			if(HEXQueueExtractHex(&q, hexBuf)) {
-				asm("nop");
+				recMsgCount++;
+				HEXQueueInit(&q);
+				uint8_t result = ProcessHexFlash();
+				if(result == 1)
+					break;
 			}
 		}
+
 	}
+	HAL_FLASH_Lock();
 	while (1)
 	{
 		HAL_Delay(500);
@@ -259,13 +333,9 @@ int main(void)
 		//BSP_LED_On(LED2);
 		BSP_LED_On(LED3);
 		HAL_Delay(500);
-		for(uint16_t i = 0; i < 0xFFFF; i++)
-			asm("nop");
 		BSP_LED_Off(LED1);
 		//BSP_LED_Off(LED2);
 		BSP_LED_Off(LED3);
-		for(uint16_t i = 0; i < 0xFFFF; i++)
-			asm("nop");
 	}
 }
 
@@ -312,6 +382,8 @@ static uint32_t GetSector(uint32_t Address)
 	}
 	return sector;
 }
+
+
 
 /**
  * @brief  Gets sector Size
