@@ -18,7 +18,9 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
+#include "HexQueue.h"
 
 /** @addtogroup STM32F4xx_HAL_Examples
  * @{
@@ -64,6 +66,99 @@ static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
 /* Private functions ---------------------------------------------------------*/
 
+void TinyBLInit(void) {
+	HAL_Init();
+
+	RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+	RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+
+	/** Configure the main internal regulator output voltage
+	 */
+	__HAL_RCC_PWR_CLK_ENABLE();
+	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+	/** Initializes the RCC Oscillators according to the specified parameters
+	 * in the RCC_OscInitTypeDef structure.
+	 */
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+	RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+	RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+	RCC_OscInitStruct.PLL.PLLM = 8;
+	RCC_OscInitStruct.PLL.PLLN = 180;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = 2;
+	RCC_OscInitStruct.PLL.PLLR = 2;
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+	{
+		for(;;);
+	}
+
+	/** Activate the Over-Drive mode
+	 */
+	if (HAL_PWREx_EnableOverDrive() != HAL_OK)
+	{
+		for(;;);
+	}
+
+	/** Initializes the CPU, AHB and APB buses clocks
+	 */
+	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+			|RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+	RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+	RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+	RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+	if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+	{
+		for(;;);
+	}
+
+
+	/*GPIO_InitTypeDef  GPIO_InitStruct;
+	//##-1- Enable peripherals and GPIO Clocks #################################
+	// Enable GPIO TX/RX clock
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+
+	// Enable USARTx clock
+	__HAL_RCC_USART3_CLK_ENABLE();
+
+	//##-2- Configure peripheral GPIO ##########################################
+	// UART TX GPIO pin configuration
+	GPIO_InitStruct.Pin       = GPIO_PIN_8;
+	GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull      = GPIO_PULLUP;
+	GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+	HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+	// UART RX GPIO pin configuration
+	GPIO_InitStruct.Pin = GPIO_PIN_9;
+	GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+	HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);*/
+
+
+	UartHandle.Instance        = USART3;
+	UartHandle.Init.BaudRate   = 57600;
+	UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
+	UartHandle.Init.StopBits   = UART_STOPBITS_1;
+	UartHandle.Init.Parity     = UART_PARITY_NONE;
+	UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
+	UartHandle.Init.Mode       = UART_MODE_TX_RX;
+	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+
+	if (HAL_UART_Init(&UartHandle) != HAL_OK)
+	{
+		//Initialization Error
+		for(;;);
+	}
+
+}
+
+
 /**
  * @brief  Main program
  * @param  None
@@ -73,6 +168,7 @@ static uint32_t GetSectorSize(uint32_t Sector);
 
 int main(void)
 {  
+	TinyBLInit();
 	/* STM32F4xx HAL library initialization:
        - Configure the Flash prefetch
        - Systick timer is configured by default as source of time base, but user 
@@ -83,10 +179,10 @@ int main(void)
        - Set NVIC Group Priority to 4
        - Low Level Initialization
 	 */
-	HAL_Init();
+	//HAL_Init();
 
 	/* Configure the system clock to 180 MHz */
-	SystemClock_Config();
+	//SystemClock_Config();
 
 	/* Initialize LED1, LED2 and LED3 */
 	BSP_LED_Init(LED1);
@@ -94,20 +190,21 @@ int main(void)
 	BSP_LED_Init(LED3);
 
 	//UART init
-	UartHandle.Instance        = USARTx;
+	/*UartHandle.Instance        = USARTx;
 	UartHandle.Init.BaudRate   = 57600;
 	UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
 	UartHandle.Init.StopBits   = UART_STOPBITS_1;
 	UartHandle.Init.Parity     = UART_PARITY_NONE;
 	UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
 	UartHandle.Init.Mode       = UART_MODE_TX_RX;
-	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+	UartHandle.Init.OverSampling = UART_OVERSAMPLING_8;
 	if (HAL_UART_Init(&UartHandle) != HAL_OK)
 	{
 		//Initialization Error
 		BSP_LED_On(LED2);
 		for(;;);
-	}
+	}*/
+
 
 	/* Unlock the Flash to enable the flash control register access *************/
 	//HAL_FLASH_Unlock();
@@ -126,14 +223,35 @@ int main(void)
 	EraseInitStruct.NbSectors     = NbOfSectors;
 
 
-	uint8_t printout[50] = "Hello from RAM!\r\n";
-	for(uint8_t i = 0; i < 20; i++) {
-		//UART_
-		HAL_UART_Transmit(&UartHandle, printout, 18, HAL_MAX_DELAY);
-		HAL_Delay(500);
-	}
+	uint8_t printout[50] = "Ready to receive FLASH data\r\n";
+	//HAL_UART_Transmit(&UartHandle, printout, 31, HAL_MAX_DELAY);
 
 	/* Infinite loop */
+	HEXQueue q;
+	HEXQueueInit(&q);
+	uint8_t uartInBuf[18];
+	uint8_t hexBuf[100];
+	uint32_t addrOffset = 0;
+	while(1) {
+		uint16_t count = 0;
+		//HAL_UARTEx_ReceiveToIdle(&UartHandle, uartInBuf, 17, &count, 200);
+		if((UartHandle.Instance->SR & UART_FLAG_RXNE) == UART_FLAG_RXNE) {
+			HEXQueueAdd(&q, (uint8_t)UartHandle.Instance->DR);
+			asm("nop");
+		}
+		//HAL_UART_Receive(&UartHandle, uartInBuf, 17, 0);
+		//if(HAL_UART_GetState(&UartHandle) != HAL_UART_STATE_BUSY_RX)
+			//HAL_UART_Receive_IT(&UartHandle, uartInBuf, 8);
+		//HAL_UARTEx_ReceiveToIdle_DMA(&UartHandle, uartRxItBuf, 20);
+		if(count) {
+			HEXQueueAddArray(&q, uartInBuf, count);
+
+			//Check for complete Intel hex commands
+			if(HEXQueueExtractHex(&q, hexBuf)) {
+				asm("nop");
+			}
+		}
+	}
 	while (1)
 	{
 		HAL_Delay(500);

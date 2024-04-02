@@ -1,4 +1,11 @@
-C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:74:5:main	72	static,ignoring_inline_asm
-C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:159:17:GetSector	24	static
-C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:203:17:GetSectorSize	24	static
-C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:242:13:SystemClock_Config	96	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/STM32CubeIDE/Example/inc/HexQueue.h:13:6:HEXQueueInit	16	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/STM32CubeIDE/Example/inc/HexQueue.h:19:6:HEXQueueFixBounds	16	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/STM32CubeIDE/Example/inc/HexQueue.h:28:6:HEXQueueAdd	16	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/STM32CubeIDE/Example/inc/HexQueue.h:39:6:HEXQueueAddArray	32	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/STM32CubeIDE/Example/inc/HexQueue.h:44:9:HEXQueueGetIdx	24	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/STM32CubeIDE/Example/inc/HexQueue.h:55:9:HEXQueueExtractHex	32	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:69:6:TinyBLInit	88	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:169:5:main	400	static,ignoring_inline_asm
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:277:17:GetSector	24	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:321:17:GetSectorSize	24	static
+C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Src/main.c:360:13:SystemClock_Config	96	static
