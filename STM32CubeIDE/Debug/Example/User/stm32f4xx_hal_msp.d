@@ -30,6 +30,8 @@ Example/User/stm32f4xx_hal_msp.o: ../Example/User/stm32f4xx_hal_msp.c \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
+ ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
+ ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dsi.h \
  ../../Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.h
@@ -65,6 +67,8 @@ Example/User/stm32f4xx_hal_msp.o: ../Example/User/stm32f4xx_hal_msp.c \
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
+../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
+../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dsi.h:
 ../../Drivers/BSP/STM32F4xx_Nucleo_144/stm32f4xx_nucleo_144.h:

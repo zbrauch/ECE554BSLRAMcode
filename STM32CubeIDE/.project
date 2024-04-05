@@ -82,6 +82,16 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim.c</name>
+			<type>1</type>
+			<location>C:/Users/Admin/STM32CubeIDE/workspacetemp/FLASH_EraseProgram/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</location>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim_ex.c</name>
+			<type>1</type>
+			<location>C:/Users/Admin/STM32CubeIDE/workspacetemp/FLASH_EraseProgram/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</location>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c</name>
 			<type>1</type>
 			<location>C:/Users/Admin/STM32CubeIDE/workspace_1.14.1/FLASH_EraseProgram/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</location>

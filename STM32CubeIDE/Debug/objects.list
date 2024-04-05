@@ -8,6 +8,8 @@
 "./Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_gpio.o"
 "./Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr_ex.o"
 "./Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc.o"
+"./Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim.o"
+"./Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim_ex.o"
 "./Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.o"
 "./Example/Startup/startup_stm32f446zetx.o"
 "./Example/User/main.o"

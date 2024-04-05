@@ -182,7 +182,7 @@ g_pfnVectors:
   .word     SPI2_IRQHandler                   /* SPI2                         */                   
   .word     USART1_IRQHandler                 /* USART1                       */                   
   .word     USART2_IRQHandler                 /* USART2                       */                   
-  .word     USART3_IRQHandler                 /* USART3                       */                   
+  .word     USART3_IRQHandler                 /* USART3                       */
   .word     EXTI15_10_IRQHandler              /* External Line[15:10]s        */                          
   .word     RTC_Alarm_IRQHandler              /* RTC Alarm (A and B) through EXTI Line */                 
   .word     OTG_FS_WKUP_IRQHandler            /* USB OTG FS Wakeup through EXTI line */                       

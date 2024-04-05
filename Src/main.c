@@ -60,11 +60,48 @@ UART_HandleTypeDef UartHandle; //UART handler declaration
 /*Variable used for Erase procedure*/
 static FLASH_EraseInitTypeDef EraseInitStruct;
 
+TIM_HandleTypeDef htim7;
+
+
+
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
 /* Private functions ---------------------------------------------------------*/
+
+static void MX_TIM7_Init(void)
+{
+
+	/* USER CODE BEGIN TIM7_Init 0 */
+
+	/* USER CODE END TIM7_Init 0 */
+
+	TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+	/* USER CODE BEGIN TIM7_Init 1 */
+
+	/* USER CODE END TIM7_Init 1 */
+	htim7.Instance = TIM7;
+	htim7.Init.Prescaler = 17999;
+	htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim7.Init.Period = 4999;
+	htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+	{
+		for(;;);
+	}
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+	{
+		for(;;);
+	}
+	/* USER CODE BEGIN TIM7_Init 2 */
+
+	/* USER CODE END TIM7_Init 2 */
+
+}
 
 void TinyBLInit(void) {
 	HAL_Init();
@@ -178,10 +215,10 @@ void FlashEraseSectorIfNeeded(uint32_t addr) {
 	if (HAL_FLASHEx_Erase(&EraseInitStruct, &SECTORError) != HAL_OK)
 	{
 
-	      //Error occurred while sector erase.
-	      //User can add here some code to deal with this error.
-	      //SECTORError will contain the faulty sector and then to know the code error on this sector,
-	      //user can call function 'HAL_FLASH_GetError()'
+		//Error occurred while sector erase.
+		//User can add here some code to deal with this error.
+		//SECTORError will contain the faulty sector and then to know the code error on this sector,
+		//user can call function 'HAL_FLASH_GetError()'
 		while (1) {
 			BSP_LED_On(LED3);
 		}
@@ -209,7 +246,7 @@ uint8_t ProcessHexFlash() {
 		for(uint8_t i = 0; i < dataLen; i++) {
 			if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, flashAddr+i, hexBuf[i+4]) != HAL_OK) {
 				// Error occurred while writing data in Flash memory.
-			    	//User can add here some code to deal with this error
+				//User can add here some code to deal with this error
 				while (1)
 				{
 					BSP_LED_On(LED3);
@@ -249,6 +286,23 @@ uint32_t recMsgCount = 0;
 int main(void)
 {  
 	TinyBLInit();
+
+
+	GPIO_InitTypeDef  GPIO_InitStruct;
+
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+
+	GPIO_InitStruct.Pin = GPIO_PIN_0;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
+
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+
+	MX_TIM7_Init();
+	__HAL_TIM_CLEAR_FLAG(&htim7, TIM_SR_UIF);
+	HAL_TIM_Base_Start_IT(&htim7);
 	/* STM32F4xx HAL library initialization:
        - Configure the Flash prefetch
        - Systick timer is configured by default as source of time base, but user 
@@ -480,6 +534,17 @@ static void SystemClock_Config(void)
 		while(1) { ; }
 	}
 }
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	// Check which version of the timer triggered this callback and toggle LED
+	if (htim == &htim7)
+	{
+		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
+	}
+}
+
+
 
 #ifdef  USE_FULL_ASSERT
 /**
