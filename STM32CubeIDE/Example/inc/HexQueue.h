@@ -68,6 +68,7 @@ uint8_t HEXQueueExtractHex(HEXQueue *q, uint8_t *outBuf) {
 				//copy hex command to out buffer
 				for(uint8_t j = 1; j < dataLen + 6; j++)
 					outBuf[j-1] = HEXQueueGetIdx(q, i+j);
+				//return dataLen+6;
 				return 1;
 			}
 		}

@@ -300,9 +300,12 @@ int main(void)
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
 
-	MX_TIM7_Init();
-	__HAL_TIM_CLEAR_FLAG(&htim7, TIM_SR_UIF);
-	HAL_TIM_Base_Start_IT(&htim7);
+	//periodic timer for scheduler
+	//MX_TIM7_Init();
+	//__HAL_TIM_CLEAR_FLAG(&htim7, TIM_SR_UIF);
+	//HAL_TIM_Base_Start_IT(&htim7);
+
+
 	/* STM32F4xx HAL library initialization:
        - Configure the Flash prefetch
        - Systick timer is configured by default as source of time base, but user 
@@ -538,10 +541,10 @@ static void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	// Check which version of the timer triggered this callback and toggle LED
-	if (htim == &htim7)
+	/*if (htim == &htim7)
 	{
 		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-	}
+	}*/
 }
 
 
