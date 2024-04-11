@@ -68,6 +68,7 @@ TIM_HandleTypeDef htim7;
 static void SystemClock_Config(void);
 static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
+void RTOSInit();
 /* Private functions ---------------------------------------------------------*/
 
 static void MX_TIM7_Init(void)
@@ -83,7 +84,7 @@ static void MX_TIM7_Init(void)
 
 	/* USER CODE END TIM7_Init 1 */
 	htim7.Instance = TIM7;
-	htim7.Init.Prescaler = 17999;
+	htim7.Init.Prescaler = 17999;//was 17999
 	htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
 	htim7.Init.Period = 4999;
 	htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -301,9 +302,10 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
 
 	//periodic timer for scheduler
-	//MX_TIM7_Init();
-	//__HAL_TIM_CLEAR_FLAG(&htim7, TIM_SR_UIF);
-	//HAL_TIM_Base_Start_IT(&htim7);
+	RTOSInit();
+	MX_TIM7_Init();
+	__HAL_TIM_CLEAR_FLAG(&htim7, TIM_SR_UIF);
+	HAL_TIM_Base_Start_IT(&htim7);
 
 
 	/* STM32F4xx HAL library initialization:
@@ -325,6 +327,8 @@ int main(void)
 	BSP_LED_Init(LED1);
 	BSP_LED_Init(LED2);
 	BSP_LED_Init(LED3);
+
+	for(;;);
 
 	//UART init
 	/*UartHandle.Instance        = USARTx;
@@ -538,13 +542,92 @@ static void SystemClock_Config(void)
 	}
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	// Check which version of the timer triggered this callback and toggle LED
-	/*if (htim == &htim7)
-	{
-		HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-	}*/
+void TestTask0() {
+	for(;;) {
+		BSP_LED_On(LED1);
+		BSP_LED_Off(LED2);
+		BSP_LED_Off(LED3);
+	}
+}
+void TestTask1() {
+	for(;;) {
+		BSP_LED_Off(LED1);
+		BSP_LED_On(LED2);
+		BSP_LED_Off(LED3);
+	}
+}
+void TestTask2() {
+	for(;;) {
+		BSP_LED_Off(LED1);
+		BSP_LED_Off(LED2);
+		BSP_LED_On(LED3);
+	}
+}
+
+uint32_t TaskEntryAddrs[3] = {(uint32_t)TestTask0, (uint32_t)TestTask1, (uint32_t)TestTask2};
+volatile uint8_t currentTask = 0;
+uint8_t T0Stack[0x1000];
+uint8_t T1Stack[0x1000];
+uint8_t T2Stack[0x1000];
+uint32_t TaskSPs[3];
+uint8_t firstGo = 1;
+void TIM7_IRQHandler(void) {
+	__HAL_TIM_CLEAR_FLAG(&htim7, TIM_FLAG_UPDATE);
+	if(firstGo) { //set stack pointer for task 1
+		asm volatile("ldr sp, %0" : : "m" (*(TaskSPs+currentTask)));
+		firstGo = 0;
+	}
+	asm volatile("PUSH	{R4-R11}");
+	asm volatile("str sp, %0" : "=m" (*(TaskSPs+currentTask)));
+	currentTask = (currentTask+1)%3;
+	asm volatile("ldr sp, %0" : : "m" (*(TaskSPs+currentTask)));
+	asm volatile("POP	{R4-R11}");
+}
+
+void RTOSInit() {
+	TaskSPs[0] = (uint32_t*)(T0Stack+(0x1000-32));
+	*(uint32_t*)(T0Stack+0xFFC) = 0x1000000; //program status
+	*(uint32_t*)(T0Stack+0xFF8) = TaskEntryAddrs[0]; //program counter
+	*(uint32_t*)(T0Stack+0xFF4) = TaskEntryAddrs[0]; //link register
+	*(uint32_t*)(T0Stack+0xFF0) = 0; //R12
+	*(uint32_t*)(T0Stack+0xFEC) = 0; //R3
+	*(uint32_t*)(T0Stack+0xFE8) = 0; //R2
+	*(uint32_t*)(T0Stack+0xFE4) = 0; //R1
+
+
+	TaskSPs[1] = (uint32_t*)(T1Stack+(0x1000-64));
+	*(uint32_t*)(T1Stack+0xFFC) = 0x1000000; //program status
+	*(uint32_t*)(T1Stack+0xFF8) = TaskEntryAddrs[1]; //program counter
+	*(uint32_t*)(T1Stack+0xFF4) = TaskEntryAddrs[1]; //link register
+	*(uint32_t*)(T1Stack+0xFF0) = 0; //R12
+	*(uint32_t*)(T1Stack+0xFEC) = 0; //R3
+	*(uint32_t*)(T1Stack+0xFE8) = 0; //R2
+	*(uint32_t*)(T1Stack+0xFE4) = 0; //R1
+	*(uint32_t*)(T1Stack+0xFE0) = 0; //R4
+	*(uint32_t*)(T1Stack+0xFDC) = 0; //R5
+	*(uint32_t*)(T1Stack+0xFD8) = 0; //R6
+	*(uint32_t*)(T1Stack+0xFD4) = 0; //R7
+	*(uint32_t*)(T1Stack+0xFD0) = 0; //R8
+	*(uint32_t*)(T1Stack+0xFCC) = 0; //R9
+	*(uint32_t*)(T1Stack+0xFC8) = 0; //R10
+	*(uint32_t*)(T1Stack+0xFC4) = 0; //R11
+
+	TaskSPs[2] = (uint32_t*)(T2Stack+(0x1000-64));
+	*(uint32_t*)(T2Stack+0xFFC) = 0x1000000; //program status
+	*(uint32_t*)(T2Stack+0xFF8) = TaskEntryAddrs[2]; //program counter
+	*(uint32_t*)(T2Stack+0xFF4) = TaskEntryAddrs[2]; //link register
+	*(uint32_t*)(T2Stack+0xFF0) = 0; //R12
+	*(uint32_t*)(T2Stack+0xFEC) = 0; //R3
+	*(uint32_t*)(T2Stack+0xFE8) = 0; //R2
+	*(uint32_t*)(T2Stack+0xFE4) = 0; //R1
+	*(uint32_t*)(T2Stack+0xFE0) = 0; //R4
+	*(uint32_t*)(T2Stack+0xFDC) = 0; //R5
+	*(uint32_t*)(T2Stack+0xFD8) = 0; //R6
+	*(uint32_t*)(T2Stack+0xFD4) = 0; //R7
+	*(uint32_t*)(T2Stack+0xFD0) = 0; //R8
+	*(uint32_t*)(T2Stack+0xFCC) = 0; //R9
+	*(uint32_t*)(T2Stack+0xFC8) = 0; //R10
+	*(uint32_t*)(T2Stack+0xFC4) = 0; //R11
 }
 
 

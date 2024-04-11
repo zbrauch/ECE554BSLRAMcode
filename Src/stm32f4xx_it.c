@@ -141,7 +141,7 @@ void SysTick_Handler(void)
 }
 
 
-void TIM7_IRQHandler(void)
+__weak void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
 
