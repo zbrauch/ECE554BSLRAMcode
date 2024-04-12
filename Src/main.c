@@ -84,9 +84,9 @@ static void MX_TIM7_Init(void)
 
 	/* USER CODE END TIM7_Init 1 */
 	htim7.Instance = TIM7;
-	htim7.Init.Prescaler = 17999;//was 17999
+	htim7.Init.Prescaler = 179;//was 17999 for 1s
 	htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim7.Init.Period = 4999;
+	htim7.Init.Period = 49; //was 4999 for 1s
 	htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 	if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
 	{
@@ -230,22 +230,21 @@ void FlashEraseSectorIfNeeded(uint32_t addr) {
 }
 
 
-uint8_t hexBuf[100];
-uint32_t addrOffset = 0;
+
 //process hex and flash
 //returns 0 if success, 1 if end of flashing, -1 if error
-uint8_t ProcessHexFlash() {
-	uint8_t dataLen = hexBuf[0];
-	uint8_t cmdType = hexBuf[3];
+/*uint8_t ProcessHexFlash(uint8_t *hex) {
+	uint8_t dataLen = hex[0];
+	uint8_t cmdType = hex[3];
 	if(cmdType == 0) { //data
-		uint32_t flashAddr = addrOffset + (((uint32_t)hexBuf[1])<<8) + (uint32_t)hexBuf[2];
+		uint32_t flashAddr = addrOffset + (((uint32_t)hex[1])<<8) + (uint32_t)hex[2];
 		//I'm making a brave assumption here. I'm assuming a single data record won't extend between
 		//multiple sectors. Is this a safe assumption? I dunno. But it'll save more clock cycles than
 		//a half-baked solution
 		FlashEraseSectorIfNeeded(flashAddr);
 
 		for(uint8_t i = 0; i < dataLen; i++) {
-			if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, flashAddr+i, hexBuf[i+4]) != HAL_OK) {
+			if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, flashAddr+i, hex[i+4]) != HAL_OK) {
 				// Error occurred while writing data in Flash memory.
 				//User can add here some code to deal with this error
 				while (1)
@@ -267,13 +266,13 @@ uint8_t ProcessHexFlash() {
 	}
 	else if (cmdType == 4) { //extended linear address
 		//printf("Address Command: %s\r\n", hexCmdBuf);
-		addrOffset = (((uint32_t)hexBuf[4]) << 24) + (((uint32_t)hexBuf[5]) << 16);
+		addrOffset = (((uint32_t)hex[4]) << 24) + (((uint32_t)hex[5]) << 16);
 	}
 	else if (cmdType == 5) { //start linear address
 		//we shouldn't need to care about entry address
 	}
 	return 0;
-}
+}*/
 
 
 
@@ -283,7 +282,6 @@ uint8_t ProcessHexFlash() {
  * @retval None
  */
 
-uint32_t recMsgCount = 0;
 int main(void)
 {  
 	TinyBLInit();
@@ -300,6 +298,11 @@ int main(void)
 
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+
+	/* Initialize LED1, LED2 and LED3 */
+	BSP_LED_Init(LED1);
+	BSP_LED_Init(LED2);
+	BSP_LED_Init(LED3);
 
 	//periodic timer for scheduler
 	RTOSInit();
@@ -323,12 +326,9 @@ int main(void)
 	/* Configure the system clock to 180 MHz */
 	//SystemClock_Config();
 
-	/* Initialize LED1, LED2 and LED3 */
-	BSP_LED_Init(LED1);
-	BSP_LED_Init(LED2);
-	BSP_LED_Init(LED3);
 
-	for(;;);
+
+	for(;;); //infinite loop
 
 	//UART init
 	/*UartHandle.Instance        = USARTx;
@@ -348,16 +348,16 @@ int main(void)
 
 
 	/* Unlock the Flash to enable the flash control register access *************/
-	HAL_FLASH_Unlock();
+	/*HAL_FLASH_Unlock(); //this is where I comment out old
 
-	/* Erase the user Flash area
-    (area defined by FLASH_USER_START_ADDR and FLASH_USER_END_ADDR) ***********/
+	// Erase the user Flash area
+    //(area defined by FLASH_USER_START_ADDR and FLASH_USER_END_ADDR)
 
-	/* Get the 1st sector to erase */
+	// Get the 1st sector to erase
 	FirstSector = GetSector(FLASH_USER_START_ADDR);
-	/* Get the number of sector to erase from 1st sector*/
+	// Get the number of sector to erase from 1st sector
 	NbOfSectors = GetSector(FLASH_USER_END_ADDR) - FirstSector + 1;
-	/* Fill EraseInit structure*/
+	// Fill EraseInit structure
 	EraseInitStruct.TypeErase     = FLASH_TYPEERASE_SECTORS;
 	EraseInitStruct.VoltageRange  = FLASH_VOLTAGE_RANGE_3;
 	EraseInitStruct.Sector        = FirstSector;
@@ -367,7 +367,7 @@ int main(void)
 	uint8_t printout[50] = "Ready to receive FLASH data\r\n";
 	//HAL_UART_Transmit(&UartHandle, printout, 31, HAL_MAX_DELAY);
 
-	/* Infinite loop */
+	// Infinite loop
 	HEXQueue q;
 	HEXQueueInit(&q);
 	while(1) {
@@ -397,7 +397,7 @@ int main(void)
 		BSP_LED_Off(LED1);
 		//BSP_LED_Off(LED2);
 		BSP_LED_Off(LED3);
-	}
+	}*/
 }
 
 /**
@@ -542,33 +542,114 @@ static void SystemClock_Config(void)
 	}
 }
 
-void TestTask0() {
+//Task 0. Reads hex records from UART.
+//Places received data into inQueue
+HEXQueue inQueue;
+void UARTInTask() {
 	for(;;) {
-		BSP_LED_On(LED1);
-		BSP_LED_Off(LED2);
-		BSP_LED_Off(LED3);
-	}
-}
-void TestTask1() {
-	for(;;) {
-		BSP_LED_Off(LED1);
-		BSP_LED_On(LED2);
-		BSP_LED_Off(LED3);
-	}
-}
-void TestTask2() {
-	for(;;) {
-		BSP_LED_Off(LED1);
-		BSP_LED_Off(LED2);
-		BSP_LED_On(LED3);
+		if((UartHandle.Instance->SR & UART_FLAG_RXNE) == UART_FLAG_RXNE) {
+			HEXQueueAdd(&inQueue, (uint8_t)UartHandle.Instance->DR);
+		}
 	}
 }
 
-uint32_t TaskEntryAddrs[3] = {(uint32_t)TestTask0, (uint32_t)TestTask1, (uint32_t)TestTask2};
+//Task 1. Finds Hex records in inQueue.
+//Places received data into flashReadyBuf
+//flashReadyAddrs stores start address of flashReadyBuf
+//flashReadyCount stores number of bytes in flashReadyBuf
+#define FLASH_BUF_COUNT 0xFF
+#define FLASH_BUF_SIZE 0x10
+uint8_t flashReadyBuf[FLASH_BUF_COUNT][FLASH_BUF_SIZE];
+uint32_t flashReadyAddrs[FLASH_BUF_COUNT];
+uint8_t flashReadyCount[FLASH_BUF_COUNT];
+uint32_t recMsgCount = 0; //number of hex messages received. For debug.
+uint8_t hexProcBuf[0xff]; //temp buffer for processing hex commands
+uint32_t addrOffset = 0; //hex command address offset
+void HexProcessTask() {
+	for(;;) {
+		if(HEXQueueExtractHex(&inQueue, hexProcBuf)) {
+			recMsgCount++;
+
+			uint8_t dataLen = hexProcBuf[0];
+			uint8_t cmdType = hexProcBuf[3];
+			if(cmdType == 0) { //data. Add to buffer
+				//find unused buffer idx
+				uint16_t cidx;
+				for(cidx = 0; cidx < FLASH_BUF_COUNT; cidx++) {
+					if(flashReadyAddrs[cidx] == 0 && flashReadyCount[cidx] == 0)
+						break;
+				}
+				if(cidx == FLASH_BUF_COUNT)
+					continue; //critical error. Buffer full.
+
+				//fill in data to cache
+				for(uint8_t i = 0; i < dataLen; i++)
+					flashReadyBuf[cidx][i] = hexProcBuf[i+4];
+				flashReadyCount[cidx] = dataLen;
+				flashReadyAddrs[cidx] = addrOffset + (((uint32_t)hexProcBuf[1])<<8) + (uint32_t)hexProcBuf[2];
+			}
+			else if(cmdType == 1) { //EOF
+				break;
+			}
+			else if (cmdType == 2) { //extended segment address
+				//should not be used so don't bother
+			}
+			else if (cmdType == 3) { //start segment address
+				//we shouldn't need to care about entry address
+			}
+			else if (cmdType == 4) { //extended linear address
+				//printf("Address Command: %s\r\n", hexCmdBuf);
+				addrOffset = (((uint32_t)hexProcBuf[4]) << 24) + (((uint32_t)hexProcBuf[5]) << 16);
+			}
+			else if (cmdType == 5) { //start linear address
+				//we shouldn't need to care about entry address
+			}
+		}
+	}
+	while (1)
+	{
+		HAL_Delay(500);
+		BSP_LED_On(LED1);
+		//BSP_LED_On(LED2);
+		BSP_LED_On(LED3);
+		HAL_Delay(500);
+		BSP_LED_Off(LED1);
+		//BSP_LED_Off(LED2);
+		BSP_LED_Off(LED3);
+	}
+}
+
+//Task 2. Flashing task.
+//Flashes data from flashReadyBuf
+void FlashTask() {
+	HAL_FLASH_Unlock();
+	for(;;) {
+		for(uint16_t cidx = 0; cidx < FLASH_BUF_COUNT; cidx++) {
+			if(flashReadyAddrs[cidx] != 0 && flashReadyCount[cidx] != 0) {
+				FlashEraseSectorIfNeeded(flashReadyAddrs[cidx]);
+
+				for(uint8_t i = 0; i < flashReadyCount[cidx]; i++) {
+					if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, flashReadyAddrs[cidx]+i, flashReadyBuf[cidx][i]) != HAL_OK) {
+						// Error occurred while writing data in Flash memory.
+						//User can add here some code to deal with this error
+						while (1)
+						{
+							BSP_LED_On(LED3);
+						}
+					}
+				}
+				flashReadyCount[cidx] = 0;
+				flashReadyAddrs[cidx] = 0;
+			}
+		}
+	}
+}
+
+uint32_t TaskEntryAddrs[3] = {(uint32_t)UARTInTask, (uint32_t)HexProcessTask, (uint32_t)FlashTask};
 volatile uint8_t currentTask = 0;
-uint8_t T0Stack[0x1000];
-uint8_t T1Stack[0x1000];
-uint8_t T2Stack[0x1000];
+uint8_t T0Stack[0x2000];
+uint8_t T1Stack[0x2000];
+uint8_t T2Stack[0x2000];
 uint32_t TaskSPs[3];
 uint8_t firstGo = 1;
 void TIM7_IRQHandler(void) {
@@ -579,7 +660,11 @@ void TIM7_IRQHandler(void) {
 	}
 	asm volatile("PUSH	{R4-R11}");
 	asm volatile("str sp, %0" : "=m" (*(TaskSPs+currentTask)));
-	currentTask = (currentTask+1)%3;
+	//scheduling algorithm
+	if((UartHandle.Instance->SR & UART_FLAG_RXNE) == UART_FLAG_RXNE)
+		currentTask = 0;
+	else
+		currentTask = (currentTask+1)%3;
 	asm volatile("ldr sp, %0" : : "m" (*(TaskSPs+currentTask)));
 	asm volatile("POP	{R4-R11}");
 }
@@ -628,6 +713,12 @@ void RTOSInit() {
 	*(uint32_t*)(T2Stack+0xFCC) = 0; //R9
 	*(uint32_t*)(T2Stack+0xFC8) = 0; //R10
 	*(uint32_t*)(T2Stack+0xFC4) = 0; //R11
+
+	//zero out flash buffer
+	for(uint16_t i = 0; i < FLASH_BUF_COUNT; i++) {
+		flashReadyAddrs[i] = 0;
+		flashReadyCount[i] = 0;
+	}
 }
 
 
